@@ -19,21 +19,27 @@ app.get("/", async (req, res) => {
 
 //  
 app.post("/api/talk", async (req, res) => {
-  const { question } = req.body;
-  console.info('talk ->', req.body);
+  const { ToUserName,FromUserName,MsgType,Content,MsgId,CreateTime } = req.body;
+  console.info('post talk ->', req.body);
+  // "ToUserName": "gh_919b00572d95", // 小程序/公众号的原始ID，资源复用配置多个时可以区别消息是给谁的
+  // "FromUserName": "oVneZ57wJnV-ObtCiGv26PRrOz2g", // 该小程序/公众号的用户身份openid
+  // "CreateTime": 1651049934, // 消息时间
+  // "MsgType": "text", // 消息类型
+  // "Content": "回复1文本", // 消息内容
+  // "MsgId": 23637352235060880, // 唯一消息ID，可能发送多个重复消息，需要注意用此ID去重,
   res.send({
-    "ToUserName": "gh_919b00572d95", // 小程序/公众号的原始ID，资源复用配置多个时可以区别消息是给谁的
-    "FromUserName": "oVneZ57wJnV-ObtCiGv26PRrOz2g", // 该小程序/公众号的用户身份openid
-    "CreateTime": 1651049934, // 消息时间
-    "MsgType": "text", // 消息类型
-    "Content": "回复1文本", // 消息内容
-    "MsgId": 23637352235060880 // 唯一消息ID，可能发送多个重复消息，需要注意用此ID去重
+    MsgType,
+    Content,
+    MsgId,
+    "ToUserName": FromUserName,
+    "FromUserName": ToUserName,
+    "CreateTime":CreateTime+1
   }
   );
 });
 app.get("/api/talk", async (req, res) => {
   const { q } = req.params;
-  console.info('talk ->', q);
+  console.info('get talk ->', q);
   res.send({
     code: 0,
     data: 'oooook111',
