@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-import fetch from "node-fetch";
+ 
 const { init: initDB, Counter } = require("./db");
 const { AIKEY} = process.env;
 const logger = morgan("tiny");
@@ -18,7 +18,7 @@ app.use(logger);
 app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
-
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 //  
 app.post("/api/talk", async (req, res) => {
   const { ToUserName,FromUserName,MsgType,Content,MsgId,CreateTime } = req.body;
@@ -30,6 +30,7 @@ app.post("/api/talk", async (req, res) => {
   // "Content": "回复1文本", // 消息内容
   // "MsgId": 23637352235060880, // 唯一消息ID，可能发送多个重复消息，需要注意用此ID去重,
   console.info('ask///////',Content);
+  axios.post(request)
   const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
     method: "POST",
     headers: {
