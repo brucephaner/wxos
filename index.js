@@ -26,6 +26,15 @@ app.post("/api/talk", async (req, res) => {
     data: 'oooook',
   });
 });
+app.get("/api/talk", async (req, res) => {
+  const { q } = req.params;
+  console.info('talk ->', q);
+  res.send({
+    code: 0,
+    data: 'oooook',
+    q
+  });
+});
 // 更新计数
 app.post("/api/count", async (req, res) => {
   const { action } = req.body;
