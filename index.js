@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { init: initDB, Counter } = require("./db");
-
+const { AIKEY} = process.env;
 const logger = morgan("tiny");
 
 const app = express();
@@ -27,9 +27,32 @@ app.post("/api/talk", async (req, res) => {
   // "MsgType": "text", // 消息类型
   // "Content": "回复1文本", // 消息内容
   // "MsgId": 23637352235060880, // 唯一消息ID，可能发送多个重复消息，需要注意用此ID去重,
+  console.info('ask///////',Content);
+  const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${AIKEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: model,
+      messages:[{role:'user',content:Content}],
+      temperature: 0.6
+    }),
+  });
+  const answer = await response.json()
+  .then((data) => 
+  {
+    // @ts-ignore
+    let content = data.choices[0].message.content;
+    // @ts-ignore
+    console.info('data---',data?.usage);
+    console.info('answer---',content);
+    return content;
+  }).catch((err) =>console.error('fetch err',err));
   res.send({
     MsgType,
-    Content,
+    Content:Content+'\n'+answer,
     MsgId,
     "ToUserName": FromUserName,
     "FromUserName": ToUserName,
