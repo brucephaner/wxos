@@ -2,10 +2,15 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
- 
+const axios = require('axios');
 const { init: initDB, Counter } = require("./db");
-const { AIKEY} = process.env;
 const logger = morgan("tiny");
+const { AIKEY} = process.env;
+
+const headers = {
+  'Authorization': 'Bearer '+AIKEY,
+  "Content-Type": "application/json"
+};
 
 
 const app = express();
@@ -18,7 +23,7 @@ app.use(logger);
 app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 //  
 app.post("/api/talk", async (req, res) => {
   const { ToUserName,FromUserName,MsgType,Content,MsgId,CreateTime } = req.body;
@@ -30,32 +35,22 @@ app.post("/api/talk", async (req, res) => {
   // "Content": "回复1文本", // 消息内容
   // "MsgId": 23637352235060880, // 唯一消息ID，可能发送多个重复消息，需要注意用此ID去重,
   console.info('ask///////',Content);
-  axios.post(request)
-  const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${AIKEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: model,
-      messages:[{role:'user',content:Content}],
-      temperature: 0.6
-    }),
+  const answer = await axios.post('https://api.openai.com/v1/chat/completions',{
+    model: 'gpt-3.5-turbo',
+    messages:[{role:'user',content:Content}],
+    temperature: 0.6
+  }, { headers })
+  .then((response) => {
+    console.log(response.data);
+    return response.data.choices[0].message.content;
+  })
+  .catch((error) => {
+    console.error(error);
   });
-  const answer = await response.json()
-  .then((data) => 
-  {
-    // @ts-ignore
-    let content = data.choices[0].message.content;
-    // @ts-ignore
-    console.info('data---',data?.usage);
-    console.info('answer---',content);
-    return content;
-  }).catch((err) =>console.error('fetch err',err));
+ 
   res.send({
     MsgType,
-    Content:Content+'\n'+answer,
+    Content:'>>'+answer,
     MsgId,
     "ToUserName": FromUserName,
     "FromUserName": ToUserName,
