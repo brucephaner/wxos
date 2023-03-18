@@ -2,9 +2,11 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+import fetch from "node-fetch";
 const { init: initDB, Counter } = require("./db");
 const { AIKEY} = process.env;
 const logger = morgan("tiny");
+
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
